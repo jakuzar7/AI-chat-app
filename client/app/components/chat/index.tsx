@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 interface IReplyMessage {
-    message: string;
+    replyMessage: string;
 }
 
 function Chat() {
@@ -10,29 +10,21 @@ function Chat() {
     const [reply, setReply] = useState("reply");
 
     const onSendBtnClick = async () => {
-        const response = await axios.post("http://localhost:8080/sendMessage", {
-            userMessage,
-        });
-        console.log(response.data);
-    };
 
-    const fetchReplyMessage = async () => {
-        const response = await fetch("http://localhost:8080/hello");
-        const data = await response.json();
-        const message: IReplyMessage = data.message;
-        
-        if (message && typeof message === "string") setReply(message);
-        else setReply("error");
+        try {
+            const response = await axios.post(
+                "http://localhost:8080/sendMessage",
+                {
+                    userMessage,
+                }
+            );
+            if (response && response?.data?.replyMessage)
+                setReply(response.data.replyMessage);
+        } catch (e) {
+            console.warn(`sending message failed ${e}`);
+            setReply(`sending message failed ${e}`);
+        }
     };
-
-    useEffect(() => {
-      const interval = setInterval(fetchReplyMessage, 5000);
-    
-      return () => {
-        interval.close()
-      }
-    }, [])
-    
 
     return (
         <div className="bg-slate-900 rounded-2xl">
